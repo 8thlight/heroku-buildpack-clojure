@@ -146,6 +146,15 @@ if [ ! -r $BUILD_DIR/Procfile ]; then
   echo "web: lein with-profile production trampoline run" > $BUILD_DIR/Procfile
 fi
 
+echo "-----> Building Clojurescript"
+echo "      "
+cd $BUILD_DIR
+PATH=.lein/bin:/usr/local/bin:/usr/bin:/bin JAVA_OPTS="-Xmx500m -Duser.home=$BUILD_DIR" lein cljsbuild once prod 2>&1 | sed -u 's/^/       /'
+if [ "${PIPESTATUS[*]}" != "0 0" ]; then
+  echo " !     Failed to build Clojurescript with Leiningen"
+  exit 1
+fi
+
 # repack cache with new assets
 rm -rf $CACHE_STORE_DIR
 mkdir -p $(dirname $CACHE_STORE_DIR)
